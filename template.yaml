@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A simple Django app
+
+Resources:
+  DjangoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: myproject.app.test.lambda_handler
+      Runtime: python3.10
+      CodeUri: .
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          DJANGO_SETTINGS_MODULE: myproject.config.settings
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /get
+            Method: ANY
+        HogeApi:
+          Type: Api
+          Properties:
+            Path: /hoge
+            Method: ANY
+
+  MyDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: 'PersonalTrainerBot'
+        AttributeDefinitions:
+          - AttributeName: 'id'
+            AttributeType: 'S'
+        KeySchema:
+          - AttributeName: 'id'
+            KeyType: 'HASH'
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
